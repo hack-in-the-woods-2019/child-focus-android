@@ -2,20 +2,44 @@ package com.example.childfocus;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.annotation.NonNull;
-
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
+import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.childfocus.httpUtils.HttpUtils;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+
+import cz.msebera.android.httpclient.Header;
+
 public class MainActivity extends AppCompatActivity {
-    private TextView mTextMessage;
     private MapsActivity mapsActivity;
+    private TextView missingIdentity;
+    private TextView missingLocalIdentity;
+    private TextView receptionMissingAffiche;
+    private Button buttonAcceptation;
+    private Button buttonRefused;
+    private long identifiantMission;
+
+    private AsyncHttpResponseHandler asyncHttpResponseHandler() {
+        return new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+            }
+        };
+    }
+
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -24,13 +48,11 @@ public class MainActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    mTextMessage.setText(R.string.title_home);
                     return true;
                 case R.id.navigation_dashboard:
                     pageMapsActivity();
                     return true;
                 case R.id.navigation_notifications:
-                    mTextMessage.setText(R.string.title_notifications);
                     return true;
             }
             return false;
@@ -44,9 +66,39 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
-        mTextMessage = findViewById(R.id.message);
-
+        missingIdentity = findViewById(R.id.missingIdentity);
+        missingLocalIdentity = findViewById(R.id.missingLocalIdentity);
+        receptionMissingAffiche = findViewById(R.id.receptionMissingAffiche);
+        buttonAcceptation = findViewById(R.id.buttonAcceptation);
+        buttonRefused = findViewById(R.id.buttonRefused);
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+
+        buttonAcceptation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                choixLaNotification(Mission.Status.ACCEPTED);
+            }
+        });
+
+        buttonRefused.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                choixLaNotification(Mission.Status.REFUSED);
+            }
+        });
+    }
+
+    private void choixLaNotification(Mission.Status status) {
+        Mission mission = new Mission(identifiantMission, status);
+        RequestParams usernameAndPassword = new RequestParams("identifiantMission", identifiantMission);
+        AsyncHttpResponseHandler responseHandler = asyncHttpResponseHandler();
+        HttpUtils.post("token", usernameAndPassword, responseHandler);
+
+        chargerLaNouvelNotification();
+    }
+
+    private void chargerLaNouvelNotification() {
     }
 
     public void pageMapsActivity(){
