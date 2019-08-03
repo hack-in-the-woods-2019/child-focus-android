@@ -1,16 +1,16 @@
-package com.example.childfocus;
+package com.example.childfocus.ui.main;
 
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.example.childfocus.R;
+import com.example.childfocus.ui.maps.MapsActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.annotation.NonNull;
 
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {

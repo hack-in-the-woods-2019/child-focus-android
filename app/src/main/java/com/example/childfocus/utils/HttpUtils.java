@@ -1,4 +1,4 @@
-package com.example.childfocus.httpUtils;
+package com.example.childfocus.utils;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;

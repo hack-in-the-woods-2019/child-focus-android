@@ -19,7 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.example.childfocus.MainActivity;
+import com.example.childfocus.ui.main.MainActivity;
 import com.example.childfocus.R;
 
 public class LoginActivity extends AppCompatActivity {
