@@ -1,5 +1,7 @@
 package com.example.childfocus.utils;
 
+import android.util.Log;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.loopj.android.http.AsyncHttpClient;
@@ -45,5 +47,19 @@ public class HttpUtils {
 
     private static String getAbsoluteUrl(String relativeUrl) {
         return BASE_URL + relativeUrl;
+    }
+
+    public static AsyncHttpResponseHandler dumbResponseHandler() {
+        return new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                Log.d("SUBSCRIBE_MISSIONS", new String(responseBody));
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                Log.d("SUBSCRIBE_MISSIONS", new String(responseBody));
+            }
+        };
     }
 }

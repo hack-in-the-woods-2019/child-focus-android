@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "663950882322",
+    "firebase_url": "https://child-focus-backend.firebaseio.com",
+    "project_id": "child-focus-backend",
+    "storage_bucket": "child-focus-backend.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:663950882322:android:c66ebe6931fccbf3",
+        "android_client_info": {
+          "package_name": "com.example.childfocus"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "663950882322-o2sco4hfdsobatb9d57nuq2veegtqic7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDq6tovhY_SlTljAMzr8Q0UkbnWOCqEm7o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "663950882322-o2sco4hfdsobatb9d57nuq2veegtqic7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

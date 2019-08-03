@@ -12,11 +12,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.childfocus.Mission;
 import com.example.childfocus.R;
+import com.example.childfocus.ui.login.UserToken;
 import com.example.childfocus.ui.maps.MapsActivity;
 import com.example.childfocus.utils.HttpUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -28,7 +28,6 @@ public class MainActivity extends AppCompatActivity {
     private Button buttonAcceptation;
     private Button buttonRefused;
     private long identifiantMission;
-    private String token;
 
     private AsyncHttpResponseHandler asyncHttpResponseHandler() {
         return new AsyncHttpResponseHandler() {
@@ -66,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        token = getIntent().getStringExtra("token");
 
         setContentView(R.layout.activity_main);
 
@@ -77,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
         buttonAcceptation = findViewById(R.id.buttonAcceptation);
         buttonRefused = findViewById(R.id.buttonRefused);
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-
 
         buttonAcceptation.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
     private void choixLaNotification(Mission.Status status) {
         Mission mission = new Mission(identifiantMission, status);
         AsyncHttpResponseHandler responseHandler = asyncHttpResponseHandler();
-        HttpUtils.post("api/missions/answer",token, mission, responseHandler);
+        HttpUtils.post("api/missions/answer", UserToken.getInstance().getToken(), mission, responseHandler);
 
         chargerLaNouvelNotification();
     }

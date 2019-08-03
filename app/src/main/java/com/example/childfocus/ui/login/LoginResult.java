@@ -1,7 +1,5 @@
 package com.example.childfocus.ui.login;
 
-import androidx.annotation.Nullable;
-
 /**
  * Authentication result : success (user details) or error message.
  */

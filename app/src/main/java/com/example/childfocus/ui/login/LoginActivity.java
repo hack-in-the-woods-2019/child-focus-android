@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -14,6 +15,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
@@ -22,9 +24,15 @@ import androidx.lifecycle.ViewModelProviders;
 import com.example.childfocus.ui.main.MainActivity;
 import com.example.childfocus.R;
 import com.example.childfocus.utils.HttpUtils;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -68,7 +76,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 loadingProgressBar.setVisibility(View.GONE);
                 if (loginResult.success()) {
-                    subscribeToMissionNotifications(loginResult.getToken());
                     updateUiWithUser(loginResult.getToken());
                 } else {
                     showLoginFailed();
@@ -121,31 +128,6 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void subscribeToMissionNotifications(String token) {
-        HttpUtils.post(
-                "api/missions/subscribe",
-                token,
-                Collections.singletonList(token),
-                missionSubscribeResponseHandler()
-        );
-
-
-    }
-
-    private AsyncHttpResponseHandler missionSubscribeResponseHandler() {
-        return new AsyncHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
-            }
-        };
-    }
-
     private void login(EditText usernameEditText, EditText passwordEditText) {
         loginViewModel.login(
                 usernameEditText.getText().toString(),
@@ -154,8 +136,9 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void updateUiWithUser(String token) {
+        UserToken.getInstance().setToken(token);
+
         Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra("token", token);
         startActivity(intent);
     }
 
