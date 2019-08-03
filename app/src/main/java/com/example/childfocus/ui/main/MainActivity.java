@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private Button buttonAcceptation;
     private Button buttonRefused;
     private long identifiantMission;
+    private String token;
 
     private AsyncHttpResponseHandler asyncHttpResponseHandler() {
         return new AsyncHttpResponseHandler() {
@@ -65,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        token = getIntent().getStringExtra("token");
 
         setContentView(R.layout.activity_main);
 
@@ -94,9 +96,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void choixLaNotification(Mission.Status status) {
         Mission mission = new Mission(identifiantMission, status);
-        RequestParams usernameAndPassword = new RequestParams("identifiantMission", identifiantMission);
         AsyncHttpResponseHandler responseHandler = asyncHttpResponseHandler();
-        HttpUtils.post("token", usernameAndPassword, responseHandler);
+        HttpUtils.post("api/missions/answer",token, mission, responseHandler);
 
         chargerLaNouvelNotification();
     }
