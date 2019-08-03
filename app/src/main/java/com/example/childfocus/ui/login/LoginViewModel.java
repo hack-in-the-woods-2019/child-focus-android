@@ -7,10 +7,8 @@ import androidx.lifecycle.ViewModel;
 import android.util.Patterns;
 
 import com.example.childfocus.data.LoginRepository;
-import com.example.childfocus.data.Result;
-import com.example.childfocus.data.model.LoggedInUser;
 import com.example.childfocus.R;
-import com.example.childfocus.httpUtils.HttpUtils;
+import com.example.childfocus.utils.HttpUtils;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 

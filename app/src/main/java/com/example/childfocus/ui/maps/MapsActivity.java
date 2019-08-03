@@ -1,4 +1,4 @@
-package com.example.childfocus;
+package com.example.childfocus.ui.maps;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,6 +8,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
+import com.example.childfocus.ui.main.MainActivity;
+import com.example.childfocus.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -42,7 +44,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     };
 
     public void pageMainActivity(){
-        this.startActivity(new Intent(this,MainActivity.class));
+        this.startActivity(new Intent(this, MainActivity.class));
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.example.childfocus;
+package com.example.childfocus.ui.main;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,7 +10,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.childfocus.httpUtils.HttpUtils;
+import com.example.childfocus.Mission;
+import com.example.childfocus.R;
+import com.example.childfocus.ui.maps.MapsActivity;
+import com.example.childfocus.utils.HttpUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
