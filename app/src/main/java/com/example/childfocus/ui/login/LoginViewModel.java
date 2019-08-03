@@ -10,6 +10,11 @@ import com.example.childfocus.data.LoginRepository;
 import com.example.childfocus.data.Result;
 import com.example.childfocus.data.model.LoggedInUser;
 import com.example.childfocus.R;
+import com.example.childfocus.httpUtils.HttpUtils;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+
+import cz.msebera.android.httpclient.Header;
 
 public class LoginViewModel extends ViewModel {
 
@@ -30,15 +35,23 @@ public class LoginViewModel extends ViewModel {
     }
 
     public void login(String username, String password) {
-        // can be launched in a separate asynchronous job
-        Result<LoggedInUser> result = loginRepository.login(username, password);
+        RequestParams usernameAndPassword = new RequestParams("username", username, "password", password);
+        AsyncHttpResponseHandler responseHandler = asyncHttpResponseHandler();
+        HttpUtils.post("token", usernameAndPassword, responseHandler);
+    }
 
-        if (result instanceof Result.Success) {
-            LoggedInUser data = ((Result.Success<LoggedInUser>) result).getData();
-            loginResult.setValue(new LoginResult(new LoggedInUserView(data.getDisplayName())));
-        } else {
-            loginResult.setValue(new LoginResult(R.string.login_failed));
-        }
+    private AsyncHttpResponseHandler asyncHttpResponseHandler() {
+        return new AsyncHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                    loginResult.setValue(LoginResult.succeed(new String(responseBody)));
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                    loginResult.setValue(LoginResult.failed());
+                }
+            };
     }
 
     public void loginDataChanged(String username, String password) {

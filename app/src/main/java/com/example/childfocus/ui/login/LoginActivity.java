@@ -1,17 +1,8 @@
 package com.example.childfocus.ui.login;
 
 import android.app.Activity;
-
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
-
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -23,11 +14,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+
 import com.example.childfocus.MainActivity;
-import com.example.childfocus.MapsActivity;
 import com.example.childfocus.R;
-import com.example.childfocus.ui.login.LoginViewModel;
-import com.example.childfocus.ui.login.LoginViewModelFactory;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -68,11 +61,10 @@ public class LoginActivity extends AppCompatActivity {
                     return;
                 }
                 loadingProgressBar.setVisibility(View.GONE);
-                if (loginResult.getError() != null) {
-                    showLoginFailed(loginResult.getError());
-                }
-                if (loginResult.getSuccess() != null) {
-                    updateUiWithUser(loginResult.getSuccess());
+                if (loginResult.success()) {
+                    updateUiWithUser(loginResult.getToken());
+                } else {
+                    showLoginFailed();
                 }
                 setResult(Activity.RESULT_OK);
 
@@ -105,8 +97,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    loginViewModel.login(usernameEditText.getText().toString(),
-                            passwordEditText.getText().toString());
+                    login(usernameEditText, passwordEditText);
                 }
                 return false;
             }
@@ -116,18 +107,25 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 loadingProgressBar.setVisibility(View.VISIBLE);
-                loginViewModel.login(usernameEditText.getText().toString(),
-                        passwordEditText.getText().toString());
+                login(usernameEditText, passwordEditText);
             }
         });
     }
 
-    private void updateUiWithUser(LoggedInUserView model) {
+    private void login(EditText usernameEditText, EditText passwordEditText) {
+        loginViewModel.login(
+                usernameEditText.getText().toString(),
+                passwordEditText.getText().toString()
+        );
+    }
+
+    private void updateUiWithUser(String token) {
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("token", token);
         startActivity(intent);
     }
 
-    private void showLoginFailed(@StringRes Integer errorString) {
-        Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_SHORT).show();
+    private void showLoginFailed() {
+        Toast.makeText(getApplicationContext(), R.string.login_failed, Toast.LENGTH_SHORT).show();
     }
 }
