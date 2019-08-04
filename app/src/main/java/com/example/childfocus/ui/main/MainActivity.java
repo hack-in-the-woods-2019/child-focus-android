@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 
 import com.example.childfocus.ui.maps.MapsActivity;
-import com.example.childfocus.Mission;
+import com.example.childfocus.model.Mission;
 import com.example.childfocus.R;
 import com.example.childfocus.ui.login.UserToken;
 import com.example.childfocus.utils.HttpUtils;
@@ -32,13 +32,11 @@ public class MainActivity extends AppCompatActivity {
 
     private List<Mission> missions;
 
-    private TextView missingIdentity;
-    private TextView missingLocalIdentity;
-    private TextView receptionMissingAffiche;
+    private TextView missingPersonName;
+    private TextView missingLocation;
+    private TextView pickupLocation;
     private Button buttonAcceptation;
     private Button buttonRefused;
-
-    private long identifiantMission;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = item -> {
@@ -73,9 +71,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        missingIdentity = findViewById(R.id.missingIdentity);
-        missingLocalIdentity = findViewById(R.id.missingLocalIdentity);
-        receptionMissingAffiche = findViewById(R.id.receptionMissingAffiche);
+        missingPersonName = findViewById(R.id.missingIdentity);
+        missingLocation = findViewById(R.id.missingLocalIdentity);
+        pickupLocation = findViewById(R.id.receptionMissingAffiche);
 
         buttonAcceptation = findViewById(R.id.buttonAcceptation);
         buttonAcceptation.setOnClickListener(view -> accepterMission());
@@ -102,7 +100,9 @@ public class MainActivity extends AppCompatActivity {
                     NavigableSet<Mission> retrievedMissions = new TreeSet<>(Comparator.comparing(Mission::getId));
                     retrievedMissions.addAll(mapper.readValue(responseBody, new TypeReference<List<Mission>>(){}));
                     missions.addAll(retrievedMissions);
-                    updateMission();
+                    if (!missions.isEmpty()) {
+                        updateMission();
+                    }
                 } catch (IOException e) {
                     throw new IllegalStateException(e);
                 }
@@ -139,8 +139,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateMission() {
         currentMission = missions.remove(0);
-        missingIdentity.setText(String.valueOf(currentMission.getId()));
-        missingIdentity.refreshDrawableState();
+        missingPersonName.setText(currentMission.getMissingPerson().getFirstname() + " " + currentMission.getMissingPerson().getLastname());
+        missingPersonName.refreshDrawableState();
     }
 
     public void pageMapsActivity(){
