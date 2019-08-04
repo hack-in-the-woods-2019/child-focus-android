@@ -19,14 +19,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.example.childfocus.ui.main.MainActivity;
 import com.example.childfocus.R;
-import com.example.childfocus.utils.HttpUtils;
-import com.loopj.android.http.AsyncHttpResponseHandler;
-
-import java.util.Collections;
-
-import cz.msebera.android.httpclient.Header;
+import com.example.childfocus.ui.main.MainActivity;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -68,7 +62,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 loadingProgressBar.setVisibility(View.GONE);
                 if (loginResult.success()) {
-                    subscribeToMissionNotifications(loginResult.getToken());
                     updateUiWithUser(loginResult.getToken());
                 } else {
                     showLoginFailed();
@@ -121,31 +114,6 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void subscribeToMissionNotifications(String token) {
-        HttpUtils.post(
-                "api/missions/subscribe",
-                token,
-                Collections.singletonList(token),
-                missionSubscribeResponseHandler()
-        );
-
-
-    }
-
-    private AsyncHttpResponseHandler missionSubscribeResponseHandler() {
-        return new AsyncHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
-            }
-        };
-    }
-
     private void login(EditText usernameEditText, EditText passwordEditText) {
         loginViewModel.login(
                 usernameEditText.getText().toString(),
@@ -153,10 +121,11 @@ public class LoginActivity extends AppCompatActivity {
         );
     }
 
-    private void updateUiWithUser(String token) {
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra("token", token);
-        startActivity(intent);
+    private void updateUiWithUser(String userToken) {
+        UserToken.getInstance().setToken(userToken);
+
+        Intent mainActivityIntent = new Intent(this, MainActivity.class);
+        startActivity(mainActivityIntent);
     }
 
     private void showLoginFailed() {
