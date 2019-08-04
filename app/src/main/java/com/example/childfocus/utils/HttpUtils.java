@@ -31,6 +31,11 @@ public class HttpUtils {
         client.get(getAbsoluteUrl(url), params, responseHandler);
     }
 
+    public static void get(String url, String token, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        Header[] headers = new Header[] {new BasicHeader("Authorization", token)};
+        client.get(null, getAbsoluteUrl(url), headers, params, responseHandler);
+    }
+
     public static void post(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
         client.post(getAbsoluteUrl(url), params, responseHandler);
     }
