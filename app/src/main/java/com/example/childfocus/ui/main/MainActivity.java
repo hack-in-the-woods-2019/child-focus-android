@@ -13,20 +13,23 @@ import com.example.childfocus.ui.login.UserToken;
 import com.example.childfocus.ui.maps.MapsActivity;
 import com.example.childfocus.utils.HttpUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.ListIterator;
+import java.util.NavigableSet;
+import java.util.TreeSet;
 
 import cz.msebera.android.httpclient.Header;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ListIterator<Mission> missions;
+    private List<Mission> missions;
 
     private TextView missingIdentity;
     private TextView missingLocalIdentity;
@@ -49,16 +52,26 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return false;
             };
+    private Mission currentMission;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        missions = new ArrayList<Mission>().listIterator();
-        missionSuivante();
-
         setContentView(R.layout.activity_main);
 
+        initView();
+
+        missions = new ArrayList<>();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        missionSuivante();
+    }
+
+    private void initView() {
         missingIdentity = findViewById(R.id.missingIdentity);
         missingLocalIdentity = findViewById(R.id.missingLocalIdentity);
         receptionMissingAffiche = findViewById(R.id.receptionMissingAffiche);
@@ -73,8 +86,9 @@ public class MainActivity extends AppCompatActivity {
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
-    private void updateMissions() {
-        HttpUtils.get("api/missions/poll", UserToken.getInstance().getToken(), null, newMissionsResponseHandler());
+    private void fetchMissions() {
+        AsyncHttpResponseHandler responseHandler = newMissionsResponseHandler();
+        HttpUtils.get("api/missions/poll", UserToken.getInstance().getToken(), null, responseHandler);
     }
 
     private AsyncHttpResponseHandler newMissionsResponseHandler() {
@@ -83,17 +97,18 @@ public class MainActivity extends AppCompatActivity {
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 try {
                     ObjectMapper mapper = new ObjectMapper();
-                    List<Mission> retrievedMissions = mapper.readValue(responseBody, new TypeReference<List<Mission>>(){});
-                    retrievedMissions.forEach(missions::add);
+                    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                    NavigableSet<Mission> retrievedMissions = new TreeSet<>(Comparator.comparing(Mission::getId));
+                    retrievedMissions.addAll(mapper.readValue(responseBody, new TypeReference<List<Mission>>(){}));
+                    missions.addAll(retrievedMissions);
+                    updateMission();
                 } catch (IOException e) {
                     throw new IllegalStateException(e);
                 }
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
-            }
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {}
         };
     }
 
@@ -106,19 +121,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void repondreMission(Mission.Status status) {
-        Mission mission = new Mission(identifiantMission, status);
-        HttpUtils.post("api/missions/answer", UserToken.getInstance().getToken(), mission, HttpUtils.dumbResponseHandler());
+        currentMission.setStatus(status);
+
+        HttpUtils.post("api/missions/answer", UserToken.getInstance().getToken(), currentMission, HttpUtils.dumbResponseHandler());
 
         missionSuivante();
     }
 
     private void missionSuivante() {
-        updateMissions();
-
-        if (missions.hasNext()) {
-            Mission mission = missions.next();
-            missingIdentity.setText(String.valueOf(mission.getId()));
+        if (!missions.isEmpty()) {
+            updateMission();
+        } else {
+            fetchMissions();
         }
+    }
+
+    private void updateMission() {
+        currentMission = missions.remove(0);
+        missingIdentity.setText(String.valueOf(currentMission.getId()));
+        missingIdentity.refreshDrawableState();
     }
 
     public void pageMapsActivity(){
