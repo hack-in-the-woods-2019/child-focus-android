@@ -31,6 +31,11 @@ public class HttpUtils {
         client.get(getAbsoluteUrl(url), params, responseHandler);
     }
 
+    public static void get(String url, String token, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        Header[] headers = new Header[] {new BasicHeader("Authorization", token)};
+        client.get(null, getAbsoluteUrl(url), headers, params, responseHandler);
+    }
+
     public static void post(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
         client.post(getAbsoluteUrl(url), params, responseHandler);
     }
@@ -53,12 +58,14 @@ public class HttpUtils {
         return new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                Log.d("SUBSCRIBE_MISSIONS", new String(responseBody));
+                String response = responseBody.length > 0 ? new String(responseBody) : "Success";
+                Log.d("SUBSCRIBE_MISSIONS", response);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                Log.d("SUBSCRIBE_MISSIONS", new String(responseBody));
+                String response = responseBody.length > 0 ? new String(responseBody) : "Failure";
+                Log.d("SUBSCRIBE_MISSIONS", response);
             }
         };
     }

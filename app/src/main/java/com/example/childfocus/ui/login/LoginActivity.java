@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -15,26 +14,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.example.childfocus.ui.main.MainActivity;
 import com.example.childfocus.R;
-import com.example.childfocus.utils.HttpUtils;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
-import com.loopj.android.http.AsyncHttpResponseHandler;
-
-import java.util.Collections;
-import java.util.Optional;
-
-import cz.msebera.android.httpclient.Header;
+import com.example.childfocus.ui.main.MainActivity;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -135,11 +121,11 @@ public class LoginActivity extends AppCompatActivity {
         );
     }
 
-    private void updateUiWithUser(String token) {
-        UserToken.getInstance().setToken(token);
+    private void updateUiWithUser(String userToken) {
+        UserToken.getInstance().setToken(userToken);
 
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        Intent mainActivityIntent = new Intent(this, MainActivity.class);
+        startActivity(mainActivityIntent);
     }
 
     private void showLoginFailed() {
