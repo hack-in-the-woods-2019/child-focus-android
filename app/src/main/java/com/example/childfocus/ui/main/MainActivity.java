@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 
+import com.example.childfocus.PositionGps;
 import com.example.childfocus.ui.maps.MapsActivity;
 import com.example.childfocus.model.Mission;
 import com.example.childfocus.R;
@@ -19,6 +20,7 @@ import com.example.childfocus.utils.HttpUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
@@ -197,7 +199,10 @@ public class MainActivity extends AppCompatActivity {
         this.startActivity(new Intent(this,MapsActivity.class));
     }
 
-
+    public LatLng getLocalisation(){
+        PositionGps positionGps = new PositionGps();
+        return positionGps.getPosition(this);
+    }
 
     public void mettreAJourListMissionsAccepted(){
         reprendreLaListAfficheAccepted();
@@ -218,4 +223,5 @@ public class MainActivity extends AppCompatActivity {
     private void reprendreLaListAfficheAccepted() {
 
     }
+
 }
