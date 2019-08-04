@@ -2,6 +2,7 @@ package com.example.childfocus.ui.main;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -70,6 +71,12 @@ public class MainActivity extends AppCompatActivity {
         missionSuivante();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        missionSuivante();
+    }
+
     private void initView() {
         missingPersonName = findViewById(R.id.missingIdentity);
         missingLocation = findViewById(R.id.missingLocalIdentity);
@@ -100,9 +107,7 @@ public class MainActivity extends AppCompatActivity {
                     NavigableSet<Mission> retrievedMissions = new TreeSet<>(Comparator.comparing(Mission::getId));
                     retrievedMissions.addAll(mapper.readValue(responseBody, new TypeReference<List<Mission>>(){}));
                     missions.addAll(retrievedMissions);
-                    if (!missions.isEmpty()) {
-                        updateMission();
-                    }
+                    updateMission();
                 } catch (IOException e) {
                     throw new IllegalStateException(e);
                 }
@@ -130,17 +135,46 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void missionSuivante() {
-        if (!missions.isEmpty()) {
-            updateMission();
-        } else {
+        updateMission();
+        if (missions.isEmpty()) {
             fetchMissions();
         }
     }
 
     private void updateMission() {
-        currentMission = missions.remove(0);
-        missingPersonName.setText(currentMission.getMissingPerson().getFirstname() + " " + currentMission.getMissingPerson().getLastname());
+        if (missions.isEmpty()) {
+            hideView();
+        } else {
+            showView();
+
+            currentMission = missions.remove(0);
+            missingPersonName.setText(currentMission.getMissingPerson().getFirstname() + " " + currentMission.getMissingPerson().getLastname());
+        }
+        refreshDrawableState();
+    }
+
+    private void hideView() {
+        toggleVisibility(View.GONE);
+    }
+
+    private void showView() {
+        toggleVisibility(View.VISIBLE);
+    }
+
+    private void toggleVisibility(int visibility) {
+        missingPersonName.setVisibility(visibility);
+        missingLocation.setVisibility(visibility);
+        pickupLocation.setVisibility(visibility);
+        buttonAcceptation.setVisibility(visibility);
+        buttonRefused.setVisibility(visibility);
+    }
+
+    private void refreshDrawableState() {
         missingPersonName.refreshDrawableState();
+        missingLocation.refreshDrawableState();
+        pickupLocation.refreshDrawableState();
+        buttonAcceptation.refreshDrawableState();
+        buttonRefused.refreshDrawableState();
     }
 
     public void pageMapsActivity(){

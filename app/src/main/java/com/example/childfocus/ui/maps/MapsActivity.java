@@ -171,10 +171,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public List<Child> getChildList(){
-
         Child child1 = new Child(1,50.41136,4.44448,"Amir","AMAR");
         Child child2 = new Child(2,50.63373, 5.56749,"Ilyas","HAMOUDI");
         Child child3 = new Child(3,51.21989, 4.40346,"Sabri","AJRODE");
-       return Arrays.asList(child1,child2,child3 );
+       return Arrays.asList(child1, child2, child3);
     }
 }
