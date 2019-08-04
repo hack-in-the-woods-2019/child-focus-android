@@ -3,7 +3,9 @@ package com.example.childfocus.ui.main;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,12 +34,15 @@ import cz.msebera.android.httpclient.Header;
 public class MainActivity extends AppCompatActivity {
 
     private List<Mission> missions;
+    private List<Mission> misssionsAccepted;
 
     private TextView missingPersonName;
     private TextView missingLocation;
     private TextView pickupLocation;
     private Button buttonAcceptation;
     private Button buttonRefused;
+    private Button buttonMettreAffiche;
+    private Spinner listMissionsAcceptedSpinner;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = item -> {
@@ -88,8 +93,17 @@ public class MainActivity extends AppCompatActivity {
         buttonRefused = findViewById(R.id.buttonRefused);
         buttonRefused.setOnClickListener(view -> refuserMission());
 
+        buttonMettreAffiche = findViewById(R.id.buttonPutAffiche);
+        buttonMettreAffiche.setOnClickListener(view -> mettreAffiche());
+
+        listMissionsAcceptedSpinner = findViewById(R.id.ensembleMissionsAccepted);
+
         BottomNavigationView navView = findViewById(R.id.nav_view);
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+    }
+
+    private void mettreAffiche() {
+
     }
 
     private void fetchMissions() {
@@ -150,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
             currentMission = missions.remove(0);
             missingPersonName.setText(currentMission.getMissingPerson().getFirstname() + " " + currentMission.getMissingPerson().getLastname());
         }
+        mettreAJourListMissionsAccepted();
         refreshDrawableState();
     }
 
@@ -175,10 +190,32 @@ public class MainActivity extends AppCompatActivity {
         pickupLocation.refreshDrawableState();
         buttonAcceptation.refreshDrawableState();
         buttonRefused.refreshDrawableState();
+        listMissionsAcceptedSpinner.refreshDrawableState();
     }
 
     public void pageMapsActivity(){
         this.startActivity(new Intent(this,MapsActivity.class));
     }
 
+
+
+    public void mettreAJourListMissionsAccepted(){
+        reprendreLaListAfficheAccepted();
+        if(misssionsAccepted.isEmpty()){
+            ArrayAdapter adapter = new ArrayAdapter(this,android.R.layout.simple_spinner_item,new ArrayList<String>());
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            listMissionsAcceptedSpinner.setAdapter(adapter);
+        }else{
+            ArrayList<String> libelle = new ArrayList<>();
+            libelle.add("Sarah Croch");
+            libelle.add("Sarah Pell");
+            ArrayAdapter adapter = new ArrayAdapter(this,android.R.layout.simple_spinner_item,libelle);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            listMissionsAcceptedSpinner.setAdapter(adapter);
+        }
+    }
+
+    private void reprendreLaListAfficheAccepted() {
+
+    }
 }
