@@ -43,7 +43,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationProvider locationProvider;
     private Location location;
 
-   LocationListener locationListener = new LocationListener() {
+    LocationListener locationListener = new LocationListener() {
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -68,7 +68,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     List<Child> childList = new ArrayList<>();
 
-    private static  final LatLng lAT_LNG_DEFAULT_BRUXELLES = new LatLng(50.85045, 4.34878);
+    private static final LatLng lAT_LNG_DEFAULT_BRUXELLES = new LatLng(50.85045, 4.34878);
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -91,7 +91,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     };
 
-    public void pageMainActivity(){
+    public void pageMainActivity() {
         this.startActivity(new Intent(this, MainActivity.class));
     }
 
@@ -127,16 +127,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Add a marker in Sydney and move the camera
 
         childList = this.getChildList();
-         childList.stream().forEach( c ->{
-             mMap.addMarker(
-                     new MarkerOptions().position(c.getLatLong())
-                             .title(c.getFirstName()+" "+c.getLastName())
-                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)).anchor(0.5f, 1f)
-             );
-         });
-         mMap.addMarker(new MarkerOptions().position(this.getPosition()).title("Moi")
-                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)).anchor(0.5f, 1f));
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(this.getPosition(),8.0f));
+        childList.forEach(c -> mMap.addMarker(
+                new MarkerOptions().position(c.getLatLong())
+                        .title(c.getFirstName() + " " + c.getLastName())
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)).anchor(0.5f, 1f)
+        ));
+        mMap.addMarker(new MarkerOptions().position(this.getPosition()).title("Moi")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)).anchor(0.5f, 1f));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(this.getPosition(), 8.0f));
     }
 
     public LatLng getPosition() {
@@ -158,22 +156,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
             // for Activity#requestPermissions for more details.
-            return lAT_LNG_DEFAULT_BRUXELLES ;
+            return lAT_LNG_DEFAULT_BRUXELLES;
         }
 
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 150, locationListener );
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000, 150, locationListener);
 
         location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
 
-      return new LatLng(location.getLatitude(),location.getLongitude());
+        return new LatLng(location.getLatitude(), location.getLongitude());
 
     }
 
-    public List<Child> getChildList(){
-        Child child1 = new Child(1,50.41136,4.44448,"Amir","AMAR");
-        Child child2 = new Child(2,50.63373, 5.56749,"Ilyas","HAMOUDI");
-        Child child3 = new Child(3,51.21989, 4.40346,"Sabri","AJRODE");
-       return Arrays.asList(child1, child2, child3);
+    public List<Child> getChildList() {
+        Child child1 = new Child(1, 50.41136, 4.44448, "Amir", "AMAR");
+        Child child2 = new Child(2, 50.63373, 5.56749, "Ilyas", "HAMOUDI");
+        Child child3 = new Child(3, 51.21989, 4.40346, "Sabri", "AJRODE");
+        return Arrays.asList(child1, child2, child3);
     }
 }
