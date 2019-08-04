@@ -65,7 +65,7 @@ public class HttpUtils {
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 String response = responseBody.length > 0 ? new String(responseBody) : "Failure";
-                Log.d("SUBSCRIBE_MISSIONS", response);
+                 Log.d("SUBSCRIBE_MISSIONS", response);
             }
         };
     }
