@@ -8,11 +8,11 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-
-import com.example.childfocus.ui.maps.MapsActivity;
-import com.example.childfocus.model.Mission;
 import com.example.childfocus.R;
+import com.example.childfocus.model.Mission;
+import com.example.childfocus.model.Poster;
 import com.example.childfocus.ui.login.UserToken;
+import com.example.childfocus.ui.maps.MapsActivity;
 import com.example.childfocus.utils.HttpUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -22,10 +22,7 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.NavigableSet;
-import java.util.TreeSet;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -53,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             };
     private Mission currentMission;
+    private List<Mission> userPosters;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,8 +102,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     ObjectMapper mapper = new ObjectMapper();
                     mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                    NavigableSet<Mission> retrievedMissions = new TreeSet<>(Comparator.comparing(Mission::getId));
-                    retrievedMissions.addAll(mapper.readValue(responseBody, new TypeReference<List<Mission>>(){}));
+                    List<Mission> retrievedMissions = mapper.readValue(responseBody, new TypeReference<List<Mission>>(){});
                     missions.addAll(retrievedMissions);
                     updateMission();
                 } catch (IOException e) {
@@ -179,6 +176,32 @@ public class MainActivity extends AppCompatActivity {
 
     public void pageMapsActivity(){
         this.startActivity(new Intent(this,MapsActivity.class));
+    }
+
+    public void putPoster(Poster poster) {
+        poster.getDisplayLocations().forEach(displayLocation -> displayLocation.setPoster(null));
+
+        HttpUtils.post("/api/posters", UserToken.getInstance().getToken(), poster, HttpUtils.dumbResponseHandler());
+    }
+
+    public void userPosters() {
+        HttpUtils.get("/api/posters/byuser", UserToken.getInstance().getToken(), null, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                try {
+                    userPosters = mapper.readValue(responseBody, new TypeReference<List<Mission>>() {});
+                } catch (IOException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+            }
+        });
     }
 
 }
