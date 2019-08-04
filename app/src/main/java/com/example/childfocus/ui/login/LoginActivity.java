@@ -1,6 +1,7 @@
 package com.example.childfocus.ui.login;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -21,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.example.childfocus.services.MyFirebaseMessagingService;
 import com.example.childfocus.ui.main.MainActivity;
 import com.example.childfocus.R;
 import com.example.childfocus.utils.HttpUtils;
@@ -135,11 +137,11 @@ public class LoginActivity extends AppCompatActivity {
         );
     }
 
-    private void updateUiWithUser(String token) {
-        UserToken.getInstance().setToken(token);
+    private void updateUiWithUser(String userToken) {
+        UserToken.getInstance().setToken(userToken);
 
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        Intent mainActivityIntent = new Intent(this, MainActivity.class);
+        startActivity(mainActivityIntent);
     }
 
     private void showLoginFailed() {

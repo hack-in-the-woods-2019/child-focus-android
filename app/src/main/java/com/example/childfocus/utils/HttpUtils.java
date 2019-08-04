@@ -53,12 +53,14 @@ public class HttpUtils {
         return new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                Log.d("SUBSCRIBE_MISSIONS", new String(responseBody));
+                String response = responseBody.length > 0 ? new String(responseBody) : "Success";
+                Log.d("SUBSCRIBE_MISSIONS", response);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                Log.d("SUBSCRIBE_MISSIONS", new String(responseBody));
+                String response = responseBody.length > 0 ? new String(responseBody) : "Failure";
+                Log.d("SUBSCRIBE_MISSIONS", response);
             }
         };
     }
