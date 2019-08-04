@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -17,9 +16,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
-import com.example.childfocus.Child;
+import com.example.childfocus.model.DisplayLocation;
+import com.example.childfocus.model.Poster;
+import com.example.childfocus.ui.login.UserToken;
 import com.example.childfocus.ui.main.MainActivity;
 import com.example.childfocus.R;
+import com.example.childfocus.utils.HttpUtils;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -27,12 +32,14 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.loopj.android.http.AsyncHttpResponseHandler;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import cz.msebera.android.httpclient.Header;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -66,30 +73,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     };
 
-    List<Child> childList = new ArrayList<>();
+    List<Poster> posters = new ArrayList<>();
 
     private static final LatLng lAT_LNG_DEFAULT_BRUXELLES = new LatLng(50.85045, 4.34878);
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    pageMainActivity();
-                    return true;
-                case R.id.navigation_dashboard:
-//                    mTextMessage.setText(R.string.title_dashboard);
-                    return true;
-                case R.id.navigation_notifications:
-                    pageMainActivity();
-//                    mTextMessage.setText(R.string.title_notifications);
-                    return true;
-            }
-            return false;
-        }
-    };
+            = item -> {
+                switch (item.getItemId()) {
+                    case R.id.navigation_home:
+                        pageMainActivity();
+                        return true;
+                    case R.id.navigation_dashboard:
+                        return true;
+                    case R.id.navigation_notifications:
+                        pageMainActivity();
+                        return true;
+                }
+                return false;
+            };
 
     public void pageMainActivity() {
         this.startActivity(new Intent(this, MainActivity.class));
@@ -126,15 +127,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Add a marker in Sydney and move the camera
 
-        childList = this.getChildList();
-        childList.forEach(c -> mMap.addMarker(
-                new MarkerOptions().position(c.getLatLong())
-                        .title(c.getFirstName() + " " + c.getLastName())
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)).anchor(0.5f, 1f)
-        ));
-        mMap.addMarker(new MarkerOptions().position(this.getPosition()).title("Moi")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)).anchor(0.5f, 1f));
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(this.getPosition(), 8.0f));
+        initMap();
+    }
+
+    private MarkerOptions createMarkerOption(DisplayLocation location) {
+        return new MarkerOptions()
+                .position(new LatLng(location.getCoordinate().getLatitude().doubleValue(), location.getCoordinate().getLongitude().doubleValue()))
+                .title(location.getPoster().getMissingPerson().getFirstname() + location.getPoster().getMissingPerson().getLastname())
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET))
+                .anchor(0.5f, 1f);
     }
 
     public LatLng getPosition() {
@@ -168,10 +169,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    public List<Child> getChildList() {
-        Child child1 = new Child(1, 50.41136, 4.44448, "Amir", "AMAR");
-        Child child2 = new Child(2, 50.63373, 5.56749, "Ilyas", "HAMOUDI");
-        Child child3 = new Child(3, 51.21989, 4.40346, "Sabri", "AJRODE");
-        return Arrays.asList(child1, child2, child3);
+    public void initMap() {
+        HttpUtils.get("api/posters", UserToken.getInstance().getToken(), null, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+                try {
+                    posters = mapper.readValue(responseBody, new TypeReference<List<Poster>>(){});
+                    posters.forEach(poster -> poster.getDisplayLocations().forEach(displayLocation -> displayLocation.setPoster(poster)));
+                    posters.stream()
+                            .map(Poster::getDisplayLocations).flatMap(List::stream)
+                            .map(MapsActivity.this::createMarkerOption)
+                            .forEach(mMap::addMarker);
+
+                    mMap.addMarker(new MarkerOptions().position(MapsActivity.this.getPosition()).title("Moi")
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)).anchor(0.5f, 1f));
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(MapsActivity.this.getPosition(), 8.0f));
+                } catch (IOException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+            }
+        });
     }
 }

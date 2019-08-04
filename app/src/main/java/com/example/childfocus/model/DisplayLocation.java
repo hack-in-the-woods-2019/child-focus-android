@@ -5,9 +5,18 @@ import java.util.Objects;
 public class DisplayLocation {
     private Long id;
 
+    private Poster poster;
     private Coordinate coordinate;
 
     public DisplayLocation() {
+    }
+
+    public Poster getPoster() {
+        return poster;
+    }
+
+    public void setPoster(Poster poster) {
+        this.poster = poster;
     }
 
     public Long getId() {
