@@ -25,7 +25,7 @@ public class HttpUtils {
     private static AsyncHttpClient client = new AsyncHttpClient();
     private static ObjectMapper objectMapper = new ObjectMapper();
 
-    private static final String BASE_URL = "http://10.20.163.47:8080/";
+    private static final String BASE_URL = "http://192.168.43.151:8080/";
 
     public static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
         client.get(getAbsoluteUrl(url), params, responseHandler);

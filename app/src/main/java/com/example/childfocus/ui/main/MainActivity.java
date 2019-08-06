@@ -13,6 +13,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.childfocus.R;
 
 import com.example.childfocus.PositionGps;
+import com.example.childfocus.model.Coordinate;
+import com.example.childfocus.model.DisplayLocation;
 import com.example.childfocus.ui.maps.MapsActivity;
 import com.example.childfocus.model.Mission;
 import com.example.childfocus.model.Poster;
@@ -27,8 +29,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -104,7 +108,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void mettreAffiche() {
+        Mission mission = misssionsAccepted.stream()
+                .filter(m -> (m.getMissingPerson().getFirstname() + " " + m.getMissingPerson().getLastname()).equals(listMissionsAcceptedSpinner.getSelectedItem()))
+                .findFirst().get();
 
+        Poster poster = new Poster();
+        poster.setMissingPerson(mission.getMissingPerson());
+
+        DisplayLocation displayLocation = new DisplayLocation();
+        displayLocation.setCoordinate(new Coordinate(BigDecimal.valueOf(getLocalisation().latitude), BigDecimal.valueOf(getLocalisation().longitude)));
+        poster.addDisplayLocation(displayLocation);
+        putPoster(poster);
     }
 
     private void fetchMissions() {
@@ -164,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
             currentMission = missions.remove(0);
             missingPersonName.setText(currentMission.getMissingPerson().getFirstname() + " " + currentMission.getMissingPerson().getLastname());
         }
-        mettreAJourListMissionsAccepted();
+        updateUserMissions();
         refreshDrawableState();
     }
 
@@ -203,39 +217,35 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void mettreAJourListMissionsAccepted(){
-        reprendreLaListAfficheAccepted();
         if(misssionsAccepted.isEmpty()){
             ArrayAdapter adapter = new ArrayAdapter(this,android.R.layout.simple_spinner_item,new ArrayList<String>());
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             listMissionsAcceptedSpinner.setAdapter(adapter);
         }else{
-            ArrayList<String> libelle = new ArrayList<>();
-            libelle.add("Sarah Croch");
-            libelle.add("Sarah Pell");
+            List<String> libelle = misssionsAccepted.stream()
+                    .map(m -> m.getMissingPerson().getFirstname() + " " + m.getMissingPerson().getLastname())
+                    .collect(Collectors.toList());
             ArrayAdapter adapter = new ArrayAdapter(this,android.R.layout.simple_spinner_item,libelle);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             listMissionsAcceptedSpinner.setAdapter(adapter);
         }
     }
 
-    private void reprendreLaListAfficheAccepted() {
-
-    }
-
     public void putPoster(Poster poster) {
-        poster.getDisplayLocations().forEach(displayLocation -> displayLocation.setPoster(null));
-
         HttpUtils.post("/api/posters", UserToken.getInstance().getToken(), poster, HttpUtils.dumbResponseHandler());
     }
 
-    public void userPosters() {
+    public void updateUserMissions() {
         HttpUtils.get("/api/posters/byuser", UserToken.getInstance().getToken(), null, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 try {
-                    misssionsAccepted = mapper.readValue(responseBody, new TypeReference<List<Mission>>() {});
+                    misssionsAccepted = ((List<Mission>) mapper.readValue(responseBody, new TypeReference<List<Mission>>() {})).stream()
+                        .filter(m -> m.getStatus().equals(Mission.Status.ACCEPTED))
+                        .collect(Collectors.toList());
+                    mettreAJourListMissionsAccepted();
                 } catch (IOException e) {
                     throw new IllegalStateException(e);
                 }
